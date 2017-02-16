@@ -6,7 +6,11 @@ defmodule PokedexApi.TypeView do
   end
   
   def render("type.json", %{type: type}) do
-    %{id: type.id,
+    cond do
+      type != nil ->   %{id: type.id,
       name: type.name}
+      true -> %{}
+    end
+  
   end
 end

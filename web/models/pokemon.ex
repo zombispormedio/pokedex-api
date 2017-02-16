@@ -3,16 +3,15 @@ defmodule PokedexApi.Pokemon do
 
   alias PokedexApi.Type
   alias PokedexApi.Fav
-  alias PokedexApi.Pokemon
+  alias PokedexApi.Repo
 
 
   schema "pokemons" do
     field :name, :string
     field :description, :string
     field :evolution, :string
-    belongs_to :type1, Type
-    belongs_to :type2, Type
-
+    belongs_to :type1, Type, foreign_key: :type1_id
+    belongs_to :type2, Type, foreign_key: :type2_id
     has_many :favs, Fav
 
     timestamps()
@@ -22,15 +21,16 @@ defmodule PokedexApi.Pokemon do
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
-    Map.merge(struct, %Pokemon{type1_id: struct.type1, type2_id: struct.type2})
-    |> cast(params, [:name, :description, :evolution, :type2_id, :type1_id])
-    |> validate_required([:name, :description])
-    |> validate_length(:name, min: 4, max: 24, message: "Nombre debe tener de 4 a 24 caracteres")
-    |> validate_length(:description, min: 30,  message: "Descripción debe tener un mínimo de 30 caracteres")
+    params = parse_types(params)
+    struct
+    |> load_types
+    |> cast(params, [:name, :description, :evolution, :type1_id, :type2_id])
+    |> validate_required([:name, :description, :type1_id])
+    |> validate_length(:name, min: 4, max: 24, message: "Debe tener de 4 a 24 caracteres")
+    |> validate_length(:description, min: 30,  message: "Debe tener un mínimo de 30 caracteres")
     |> validate_format(:name, ~r/^[A-Za-z]+$/, message: "Nombre debe ser sólo una palabra")
-    |> unique_constraint(:name, message: "Nombre debe ser único")
-    |> foreign_key_constraint(:type1_id, message: "Debe ser un tipo válido")
-    |> foreign_key_constraint(:type2_id, message: "Debe ser un tipo válido")
+    |> unique_constraint(:name, message: "debe ser único")
+    |> validate_inclusion_types
     |> types_not_equals
   end
 
@@ -40,10 +40,39 @@ defmodule PokedexApi.Pokemon do
 
     cond do
       type1==type2 -> 
-        changeset
-        |> add_error([:type1_id, :type2_id], message: "Tipos no deben ser iguales")
+        add_error(changeset, :type, "Tipos no deben ser iguales")
       true -> changeset
     end
+  end
 
+  defp validate_inclusion_types(changeset) do
+    types = Enum.map(Repo.all(Type), fn item -> item.id end)
+
+    Enum.reduce([:type1_id, :type2_id], changeset, fn key, memo ->
+      if get_field(memo, key) != nil, do: validate_inclusion(memo, key, types), else: memo
+      end)
+  end
+
+  defp parse_types(params) do
+    cond do
+      has_all_types(params) ->
+        params
+        |> Map.put("type1_id", params["type1"])
+        |> Map.put("type2_id", params["type2"])
+      has_one_type(params) ->  Map.put(params, "type1_id", params["type1"])
+      true -> params
+    end
+  end
+
+   defp has_all_types(params) do
+      Map.has_key?(params, "type1")  and  Map.has_key?(params, "type2")
+  end
+
+  defp has_one_type(params) do
+    Map.has_key?(params, "type1")
+  end
+
+  def load_types(pokemon) do
+    pokemon |> Repo.preload(:type1) |> Repo.preload(:type2)
   end
 end

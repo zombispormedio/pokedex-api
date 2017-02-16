@@ -16,7 +16,7 @@ defmodule PokedexApi.PokemonController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", pokemon_path(conn, :show, pokemon))
-        |> render("show.json", pokemon: pokemon)
+        |> render("show.json", pokemon: Pokemon.load_types(pokemon))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

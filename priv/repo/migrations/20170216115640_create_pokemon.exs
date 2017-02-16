@@ -4,7 +4,7 @@ defmodule PokedexApi.Repo.Migrations.CreatePokemon do
   def change do
     create table(:pokemons) do
       add :name, :string
-      add :description, :string
+      add :description, :text
       add :evolution, :string
       add :type1_id, references(:types, on_delete: :nilify_all)
       add :type2_id, references(:types, on_delete: :nilify_all)
