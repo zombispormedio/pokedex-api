@@ -1,8 +1,11 @@
 defmodule PokedexApi.Type do
   use PokedexApi.Web, :model
 
+   alias PokedexApi.Pokemon
+
   schema "types" do
     field :name, :string
+    has_many :pokemons, Pokemon
 
     timestamps()
   end

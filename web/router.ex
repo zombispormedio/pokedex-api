@@ -9,5 +9,6 @@ defmodule PokedexApi.Router do
    scope "/api", PokedexApi do
     pipe_through :api
     resources "/types", TypeController, only: [:index]
+    resources "/pokemons", PokemonController, except: [:new, :edit]
    end
 end

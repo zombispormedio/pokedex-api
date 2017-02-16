@@ -1,10 +1,14 @@
 defmodule PokedexApi.User do
   use PokedexApi.Web, :model
 
+  alias PokedexApi.Fav
+
   schema "users" do
     field :access_token, :string
     field :last_access, Ecto.Date
+    has_many :favs, Fav
 
+    has_many :pokemons, through: [:favs, :pokemons]
     timestamps()
   end
 
