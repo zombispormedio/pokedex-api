@@ -11,5 +11,6 @@ defmodule PokedexApi.Router do
      resources "/types", TypeController, only: [:index]
      resources "/pokemons", PokemonController, except: [:new, :edit]
      resources "/fav", FavController, only: [:update]
+     get "/evolutions/autocomplete", AutocompleteController, :index
    end
 end

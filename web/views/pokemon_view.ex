@@ -27,4 +27,8 @@ defmodule PokedexApi.PokemonView do
   def render("not_found.json",  %{params: params}) do
     %{errors: [%{message: "Pokemon no encontrado", params: params}], type: "not_found"}
   end
+
+  def render("custom.json", %{data: data}) do
+    %{data: data}
+  end
 end
