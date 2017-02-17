@@ -7,6 +7,7 @@ defmodule PokedexApi.Repo.Migrations.CreateType do
 
       timestamps()
     end
+    create index(:types, [:name], unique: true)
 
   end
 end

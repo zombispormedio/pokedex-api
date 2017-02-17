@@ -5,10 +5,7 @@ defmodule PokedexApi.Repo.Migrations.InsertDataToType do
   alias PokedexApi.Type
 
   def up do
-    {:ok, result}=File.read "./priv/repo/types"
- 
-    String.split(result, "\n")
-    |> Enum.map(&(String.trim(&1)))
+    ~w{Bicho Dragón Hada Fuego Fantasma Tierra Normal Psíquico Acero Siniestro Eléctrico Lucha Volador Planta Hielo Veneno Roca Agua}
     |> Enum.each(&(Repo.insert! %Type{name: &1})) 
   end
 

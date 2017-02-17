@@ -3,8 +3,8 @@ defmodule PokedexApi.Repo.Migrations.CreateUser do
 
   def change do
     create table(:users) do
-      add :access_token, :string
-      add :last_access, :date
+      add :token, :uuid
+      add :last_access, :utc_datetime
 
       timestamps()
     end
