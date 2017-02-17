@@ -16,6 +16,17 @@ defmodule PokedexApi.Pokemon do
     timestamps()
   end
 
+  def paginate(params) do
+    per_pages= 20
+    case Map.has_key?(params, "p") do
+      true ->
+        page = String.to_integer(params["p"])
+        offset = (page-1) * per_pages
+        %{limit: per_pages, offset: offset, page: page}
+      _ ->  %{limit: per_pages, offset: 0, page: 1}
+    end
+  end
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
@@ -37,19 +48,16 @@ defmodule PokedexApi.Pokemon do
   defp types_not_equals(changeset) do
     type1 = get_field(changeset, :type1_id)
     type2 = get_field(changeset, :type2_id)
-
     cond do
-      type1==type2 -> 
-        add_error(changeset, :type, "Tipos no deben ser iguales")
+      type1==type2 -> add_error(changeset, :type, "Tipos no deben ser iguales")
       true -> changeset
     end
   end
 
   defp validate_inclusion_types(changeset, types) do
-
     Enum.reduce([:type1_id, :type2_id], changeset, fn key, memo ->
       if get_field(memo, key) != nil, do: validate_inclusion(memo, key, types), else: memo
-      end)
+    end)
   end
 
   defp parse_types(params) do
@@ -62,11 +70,9 @@ defmodule PokedexApi.Pokemon do
       true -> params
     end
   end
-
-   defp has_all_types(params) do
-      Map.has_key?(params, "type1")  and  Map.has_key?(params, "type2")
+  defp has_all_types(params) do
+    Map.has_key?(params, "type1")  and  Map.has_key?(params, "type2")
   end
-
   defp has_one_type(params) do
     Map.has_key?(params, "type1")
   end

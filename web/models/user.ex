@@ -8,8 +8,8 @@ defmodule PokedexApi.User do
     field :token, Ecto.UUID
     field :last_access, Ecto.DateTime
     has_many :favs, Fav
-
     has_many :pokemons, through: [:favs, :pokemon]
+    
     timestamps()
   end
 

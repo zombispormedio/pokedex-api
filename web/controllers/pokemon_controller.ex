@@ -3,23 +3,21 @@ defmodule PokedexApi.PokemonController do
 
   alias PokedexApi.Pokemon
   alias PokedexApi.Type
-  alias PokedexApi.User
   alias PokedexApi.Fav
+  alias PokedexApi.Authenticator
 
   def index(conn, params) do
-    user = resolve_user(conn)
-    pokemons= get_pokemons(params, user)
-
+    user = Authenticator.resolve(conn)
+    pokemons = paginate_pokemons(params, user)
     conn
     |> put_resp_authorization(user)
     |> render("index.json", pokemons: pokemons)
   end
 
   def create(conn, %{"pokemon" => pokemon_params}) do
-    user = resolve_user(conn)
+    user = Authenticator.resolve(conn)
     pokemon = load_types(%Pokemon{})
     changeset = build_change(pokemon, pokemon_params)
-
     case Repo.insert(changeset) do
       {:ok, pokemon} ->
         conn
@@ -34,7 +32,7 @@ defmodule PokedexApi.PokemonController do
   end
 
   def show(conn, %{"id" => id}) do
-    user = resolve_user(conn)
+    user = Authenticator.resolve(conn)
     get_by_id(id, &(render(&1, "show.json", pokemon: load(&2, user)))).(conn)
   end
 
@@ -56,83 +54,65 @@ defmodule PokedexApi.PokemonController do
   def delete(conn, %{"id" => id}) do
     pokemon = Repo.get(Pokemon, id) 
     cond do
-      pokemon !=nil -> 
+      pokemon != nil -> 
         Repo.delete!(pokemon)
         send_resp(conn, :no_content, "")
       true ->
         render(conn, "not_found.json", params: %{id: id})
     end
-   
   end
-
-   defp load_types(pokemon) do
+  
+  defp load_types(pokemon) do
     pokemon |> Repo.preload(:type1) |> Repo.preload(:type2)
-   end
-
-   defp load(pokemon, user) do
+  end
+  
+  defp load(pokemon, user) do
     pokemon |> load_types |>  Repo.preload(favs: from(f in Fav, where: f.user_id == ^user.id))
-   end
-
-  defp get_by_id(id, callback) do
+  end
+  
+  def get_by_id(id, callback) do
     pokemon = Repo.one( from u in Pokemon, where: u.id == ^id)
-
     cond do
       pokemon !=nil -> &(callback.(&1, pokemon))
       true -> &(render(&1, "not_found.json", params: %{id: id}))
     end
   end
-
+  
   defp types() do
     Enum.map(Repo.all(Type), fn item -> item.id end)
   end
-
+  
   defp build_change(pokemon, params) do
     Pokemon.changeset(pokemon, params, types())
   end
-
-  defp get_pokemons(params, user) do
-    query = from p in Pokemon, preload: [:type1, :type2]
-
-    query=case Map.has_key?(params, "q") do
+  
+  def paginate_pokemons(params, user) do
+    count = Repo.aggregate(Pokemon, :count, :id)
+    %{limit: limit, offset: offset, page: page} = Pokemon.paginate(params)
+    max_pages = Float.ceil(count / limit)
+    cond do
+      max_pages < page -> []
+      true -> get_pokemons(params, user, limit: limit, offset: offset)
+    end
+  end
+  
+  defp get_pokemons(params, user, [limit: limit, offset: offset]) do
+    query = from p in Pokemon, preload: [:type1, :type2], limit: ^limit, offset: ^offset
+    query = case Map.has_key?(params, "q") do
       true ->(
-      %{"q" => q} = params
-      name = "%#{q}%"
-      from p in query,  where: like(p.name, ^name)
-      )
+        %{"q" => q} = params
+        name = "%#{q}%"
+        from p in query,  where: like(p.name, ^name)
+        )
       _ -> query
     end
-    
-   pokemons=case Map.has_key?(params, "f") do
+    pokemons = case Map.has_key?(params, "f") do
       true -> Repo.preload(user, pokemons: query).pokemons
       _ -> Repo.all(query)
     end
-
     Repo.preload(pokemons, favs: from(f in Fav, where: f.user_id == ^user.id))
   end
-
-  defp resolve_user(conn) do
-    auth = (get_req_header(conn, "authorization") |> List.first)
-     cond do
-       auth != nil-> get_user(auth)
-       true -> Repo.insert!(User.create())
-     end
-  end
-
-  def get_user(token) do
-    user =  get_valid_user(token)
-    cond do
-      user != nil -> user
-      true -> Repo.insert!(User.create())
-    end
-  end
-
-  def get_valid_user(token) do
-    case Ecto.UUID.cast(token) do
-      {:ok, t} -> Repo.one(from u in User, where: u.token == ^t)
-      :error -> Repo.insert!(User.create())
-    end
-  end
-
+  
   defp put_resp_authorization(conn, user) do
     put_resp_header(conn, "Authorization", user.token)
   end

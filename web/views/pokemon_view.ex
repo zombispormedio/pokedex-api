@@ -13,8 +13,8 @@ defmodule PokedexApi.PokemonView do
 
   def render("pokemon.json", %{pokemon: pokemon}) do
     %{type1: type1, type2: type2} = pokemon
-
-    pokemon=%{id: pokemon.id,
+    %{
+      id: pokemon.id,
       name: pokemon.name,
       description: pokemon.description,
       type1: TypeView.render("type.json", %{type: type1}),
@@ -24,8 +24,7 @@ defmodule PokedexApi.PokemonView do
     }
   end
 
-    def render("not_found.json",  %{params: params}) do
-    # result=Map.put(%{}, key, message)
-     %{errors: [%{message: "Pokemon no encontrado", params: params}], type: "not_found"}
+  def render("not_found.json",  %{params: params}) do
+    %{errors: [%{message: "Pokemon no encontrado", params: params}], type: "not_found"}
   end
 end

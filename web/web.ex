@@ -33,9 +33,11 @@ defmodule PokedexApi.Web do
       alias PokedexApi.Repo
       import Ecto
       import Ecto.Query
-
+      
       import PokedexApi.Router.Helpers
       import PokedexApi.Gettext
+
+      alias PokedexApi.Authenticator
     end
   end
 

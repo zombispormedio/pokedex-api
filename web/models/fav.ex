@@ -10,13 +10,14 @@ defmodule PokedexApi.Fav do
 
     timestamps()
   end
-
-  @doc """
-  Builds a changeset based on the `struct` and `params`.
-  """
+  
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [])
-    |> validate_required([])
+    |> cast(params, [:user_id, :pokemon_id])
+    |> validate_required([:user_id, :pokemon_id])
+    |> foreign_key_constraint(:user_id)
+    |> assoc_constraint(:user)
+    |> foreign_key_constraint(:pokemon_id)
+    |> assoc_constraint(:pokemon)
   end
 end
