@@ -14,12 +14,13 @@ defmodule PokedexApi.PokemonView do
   def render("pokemon.json", %{pokemon: pokemon}) do
     %{type1: type1, type2: type2} = pokemon
 
-    %{id: pokemon.id,
+    pokemon=%{id: pokemon.id,
       name: pokemon.name,
       description: pokemon.description,
       type1: TypeView.render("type.json", %{type: type1}),
       type2: TypeView.render("type.json", %{type: type2}),
-      evolution: pokemon.evolution
+      evolution: pokemon.evolution,
+      fav: Enum.count(pokemon.favs) == 1
     }
   end
 
