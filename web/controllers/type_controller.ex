@@ -7,4 +7,8 @@ defmodule PokedexApi.TypeController do
     types = Repo.all(Type)
     render(conn, "index.json", types: types)
   end
+
+  def hello(conn, _params) do
+    render(conn, "hello.json")
+  end
 end

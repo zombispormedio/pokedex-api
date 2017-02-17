@@ -5,7 +5,9 @@ defmodule PokedexApi.Router do
     plug :accepts, ["json"]
   end
 
-  
+  scope "/", PokedexApi do
+    get "/", TypeController, :hello
+  end 
    scope "/api", PokedexApi do
      pipe_through :api
      resources "/types", TypeController, only: [:index]
