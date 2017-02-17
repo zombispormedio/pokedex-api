@@ -1,6 +1,6 @@
 defmodule PokedexApi.TypeView do
   use PokedexApi.Web, :view
-  alias NaiveDateTime, as: T
+  alias DateTime, as: T
 
   def render("index.json", %{types: types}) do
     %{data: render_many(types, PokedexApi.TypeView, "type.json")}
