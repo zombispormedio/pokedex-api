@@ -22,4 +22,9 @@ defmodule PokedexApi.PokemonView do
       evolution: pokemon.evolution
     }
   end
+
+    def render("not_found.json",  %{params: params}) do
+    # result=Map.put(%{}, key, message)
+     %{errors: [%{message: "Pokemon no encontrado", params: params}], type: "not_found"}
+  end
 end

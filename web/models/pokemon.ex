@@ -3,7 +3,6 @@ defmodule PokedexApi.Pokemon do
 
   alias PokedexApi.Type
   alias PokedexApi.Fav
-  alias PokedexApi.Repo
 
 
   schema "pokemons" do
@@ -20,17 +19,18 @@ defmodule PokedexApi.Pokemon do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  def changeset(struct, params \\ %{}) do
+  def changeset(struct, params \\ %{}, types) do
     params = parse_types(params)
     struct
-    |> load_types
     |> cast(params, [:name, :description, :evolution, :type1_id, :type2_id])
     |> validate_required([:name, :description, :type1_id])
     |> validate_length(:name, min: 4, max: 24, message: "Debe tener de 4 a 24 caracteres")
     |> validate_length(:description, min: 30,  message: "Debe tener un mínimo de 30 caracteres")
     |> validate_format(:name, ~r/^[A-Za-z]+$/, message: "Nombre debe ser sólo una palabra")
     |> unique_constraint(:name, message: "debe ser único")
-    |> validate_inclusion_types
+    |> foreign_key_constraint(:type1_id)
+    |> assoc_constraint(:type1)
+    |> validate_inclusion_types(types)
     |> types_not_equals
   end
 
@@ -45,8 +45,7 @@ defmodule PokedexApi.Pokemon do
     end
   end
 
-  defp validate_inclusion_types(changeset) do
-    types = Enum.map(Repo.all(Type), fn item -> item.id end)
+  defp validate_inclusion_types(changeset, types) do
 
     Enum.reduce([:type1_id, :type2_id], changeset, fn key, memo ->
       if get_field(memo, key) != nil, do: validate_inclusion(memo, key, types), else: memo
@@ -70,9 +69,5 @@ defmodule PokedexApi.Pokemon do
 
   defp has_one_type(params) do
     Map.has_key?(params, "type1")
-  end
-
-  def load_types(pokemon) do
-    pokemon |> Repo.preload(:type1) |> Repo.preload(:type2)
   end
 end
