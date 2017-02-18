@@ -48,8 +48,10 @@ defmodule PokedexApi.Pokemon do
   defp types_not_equals(changeset) do
     type1 = get_field(changeset, :type1_id)
     type2 = get_field(changeset, :type2_id)
+    IO.puts type1
+    IO.puts type2
     cond do
-      type1==type2 -> add_error(changeset, :type, "Tipos no deben ser iguales")
+      type1==type2 -> add_error(changeset, :type, "no deben ser iguales")
       true -> changeset
     end
   end
@@ -63,9 +65,9 @@ defmodule PokedexApi.Pokemon do
   defp parse_types(params) do
     cond do
       has_all_types(params) ->
-        params
-        |> Map.put("type1_id", params["type1"])
-        |> Map.put("type2_id", params["type2"])
+        params = Map.put(params, "type1_id", params["type1"])
+        type2 = params["type2"]
+        if type2 > 0, do: Map.put(params, "type2_id", type2), else: params
       has_one_type(params) ->  Map.put(params, "type1_id", params["type1"])
       true -> params
     end

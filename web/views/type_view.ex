@@ -10,7 +10,7 @@ defmodule PokedexApi.TypeView do
     cond do
       type != nil ->   %{id: type.id,
       name: type.name}
-      true -> %{}
+      true -> %{ id: 0, name: "Ninguno"}
     end
   end
 
