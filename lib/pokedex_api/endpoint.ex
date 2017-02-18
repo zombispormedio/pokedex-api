@@ -38,5 +38,7 @@ defmodule PokedexApi.Endpoint do
     key: "_pokedex_api_key",
     signing_salt: "g5waoQtc"
 
+  plug CORSPlug
+
   plug PokedexApi.Router
 end
