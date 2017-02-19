@@ -33,7 +33,8 @@ defmodule PokedexApi.PokemonController do
 
   def show(conn, %{"id" => id}) do
     user = Authenticator.resolve(conn)
-    get_by_id(id, &(render(&1, "show.json", pokemon: load(&2, user)))).(conn)
+    r = &(render(&1, "show.json", pokemon: load(&2, user)))
+    get_by_id(id, r).(conn |> put_resp_authorization(user))
   end
 
   def update(conn, %{"id" => id, "pokemon" => params}) do
