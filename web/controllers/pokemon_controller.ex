@@ -42,6 +42,7 @@ defmodule PokedexApi.PokemonController do
 
   defp process_update(conn, pokemon, params) do
     changeset = build_change(load_types(pokemon), params)
+    
     case Repo.update(changeset) do
       {:ok, pokemon} -> show(conn, %{"id" => pokemon.id})
       {:error, changeset} ->

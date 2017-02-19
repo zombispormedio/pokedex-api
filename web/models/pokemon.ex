@@ -3,12 +3,13 @@ defmodule PokedexApi.Pokemon do
 
   alias PokedexApi.Type
   alias PokedexApi.Fav
-
+  alias PokedexApi.PokeApi
 
   schema "pokemons" do
     field :name, :string
     field :description, :string
     field :evolution, :string
+    field :sprite, :string
     belongs_to :type1, Type, foreign_key: :type1_id
     belongs_to :type2, Type, foreign_key: :type2_id
     has_many :favs, Fav
@@ -31,9 +32,9 @@ defmodule PokedexApi.Pokemon do
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}, types) do
-    params = parse_types(params)
+    params = (parse_types(params) |> empty_sprite)
     struct
-    |> cast(params, [:name, :description, :evolution, :type1_id, :type2_id])
+    |> cast(params, [:name, :description, :evolution, :type1_id, :type2_id, :sprite])
     |> validate_required([:name, :description, :type1_id])
     |> validate_length(:name, min: 4, max: 24, message: "Debe tener de 4 a 24 caracteres")
     |> validate_length(:description, min: 30,  message: "Debe tener un mínimo de 30 caracteres")
@@ -43,15 +44,24 @@ defmodule PokedexApi.Pokemon do
     |> assoc_constraint(:type1)
     |> validate_inclusion_types(types)
     |> types_not_equals
+    |> add_sprite(struct)
   end
 
   defp types_not_equals(changeset) do
     type1 = get_field(changeset, :type1_id)
     type2 = get_field(changeset, :type2_id)
-    IO.puts type1
-    IO.puts type2
     cond do
       type1==type2 -> add_error(changeset, :type, "no deben ser iguales")
+      true -> changeset
+    end
+  end
+
+  defp add_sprite(changeset, struct) do
+     name = get_field(changeset, :name)
+    cond do
+      struct.name != name or struct.sprite == nil  -> 
+        sprite = PokeApi.sprite(name)
+        change(changeset, %{sprite: sprite})
       true -> changeset
     end
   end
@@ -72,6 +82,11 @@ defmodule PokedexApi.Pokemon do
       true -> params
     end
   end
+
+  defp empty_sprite(params) do
+    Map.put(params, "sprite", "")
+  end
+
   defp has_all_types(params) do
     Map.has_key?(params, "type1")  and  Map.has_key?(params, "type2")
   end

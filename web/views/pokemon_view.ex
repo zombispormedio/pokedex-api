@@ -20,7 +20,8 @@ defmodule PokedexApi.PokemonView do
       type1: TypeView.render("type.json", %{type: type1}),
       type2: TypeView.render("type.json", %{type: type2}),
       evolution: pokemon.evolution,
-      fav: Enum.count(pokemon.favs) == 1
+      fav: Enum.count(pokemon.favs) == 1,
+      sprite: pokemon.sprite
     }
   end
 
