@@ -7,85 +7,84 @@
 ## Run `mix gettext.extract` to bring this file up to
 ## date. Leave `msgstr`s empty as changing them here as no
 ## effect: edit them in PO (`.po`) files instead.
-
 ## From Ecto.Changeset.cast/4
-msgid "can't be blank"
+msgid "no puede estar vacío"
 msgstr ""
 
 ## From Ecto.Changeset.unique_constraint/3
-msgid "has already been taken"
+msgid "ya ha está cogido"
 msgstr ""
 
 ## From Ecto.Changeset.put_change/3
-msgid "is invalid"
+msgid "es inválido"
 msgstr ""
 
 ## From Ecto.Changeset.validate_format/3
-msgid "has invalid format"
+msgid "tienen un formato inválido"
 msgstr ""
 
 ## From Ecto.Changeset.validate_subset/3
-msgid "has an invalid entry"
+msgid "tiene un entrada inválida"
 msgstr ""
 
 ## From Ecto.Changeset.validate_exclusion/3
-msgid "is reserved"
+msgid "está reservado"
 msgstr ""
 
 ## From Ecto.Changeset.validate_confirmation/3
-msgid "does not match confirmation"
+msgid "no corresponde con una asociación"
 msgstr ""
 
 ## From Ecto.Changeset.no_assoc_constraint/3
-msgid "is still associated to this entry"
+msgid "no está todavía asociado a esta entrada"
 msgstr ""
 
-msgid "are still associated to this entry"
+msgid "está todavía asociado a esta entrada"
 msgstr ""
 
 ## From Ecto.Changeset.validate_length/3
-msgid "should be %{count} character(s)"
-msgid_plural "should be %{count} character(s)"
+msgid "debería tener %{count} caracteres"
+msgid_plural "debería tener %{count} caracteres"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "should have %{count} item(s)"
-msgid_plural "should have %{count} item(s)"
+msgid "debería tener %{count} item(s)"
+msgid_plural "debería tener %{count} item(s)"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "should be at least %{count} character(s)"
-msgid_plural "should be at least %{count} character(s)"
+msgid "debería tener al menos %{count} caracteres"
+msgid_plural "debería tener al menos %{count} caracteres"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "should have at least %{count} item(s)"
-msgid_plural "should have at least %{count} item(s)"
+msgid "debería tener al menos %{count} item(s)"
+msgid_plural "debería tener al menos %{count} item(s)"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "should be at most %{count} character(s)"
-msgid_plural "should be at most %{count} character(s)"
+msgid "debería tener como máximo %{count} caracteres"
+msgid_plural "debería tener como máximo %{count} caracters"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "should have at most %{count} item(s)"
-msgid_plural "should have at most %{count} item(s)"
+msgid "debería tener como máximo %{count} item(s)"
+msgid_plural "debería tener como máximo %{count} item(s)"
 msgstr[0] ""
 msgstr[1] ""
 
 ## From Ecto.Changeset.validate_number/3
-msgid "must be less than %{number}"
+msgid "debe ser menor que %{number}"
 msgstr ""
 
-msgid "must be greater than %{number}"
+msgid "debe ser mayor que %{number}"
 msgstr ""
 
-msgid "must be less than or equal to %{number}"
+msgid "debe ser menor o igual que %{number}"
 msgstr ""
 
-msgid "must be greater than or equal to %{number}"
+msgid "debe ser mayor o igual que %{number}"
 msgstr ""
 
-msgid "must be equal to %{number}"
+msgid "debe ser igual a %{number}"
 msgstr ""
