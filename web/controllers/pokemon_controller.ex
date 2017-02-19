@@ -88,30 +88,48 @@ defmodule PokedexApi.PokemonController do
   end
   
   def paginate_pokemons(params, user) do
-    count = Repo.aggregate(Pokemon, :count, :id)
-    %{limit: limit, offset: offset, page: page} = Pokemon.paginate(params)
-    max_pages = Float.ceil(count / limit)
-    cond do
-      max_pages < page -> []
-      true -> get_pokemons(params, user, limit: limit, offset: offset)
+    result= get_query_and_metadata(params, user)
+    case result.overflow do
+       true -> []
+      _ -> get_pokemons(result, user)
     end
   end
   
-  defp get_pokemons(params, user, [limit: limit, offset: offset]) do
-    query = from p in Pokemon, preload: [:type1, :type2], limit: ^limit, offset: ^offset
-    query = case Map.has_key?(params, "q") do
-      true ->(
-        %{"q" => q} = params
-        name = "%#{q}%"
-        from p in query,  where: like(p.name, ^name)
-        )
-      _ -> query
-    end
-    pokemons = case Map.has_key?(params, "f") do
-      true -> Repo.preload(user, pokemons: query).pokemons
-      _ -> Repo.all(query)
-    end
+  defp get_pokemons(result, user) do
+    query = result.query
+    pokemons = case result.only_favs do
+                  true -> Repo.preload(user, pokemons: query).pokemons
+                  _ -> Repo.all(query)
+              end
     Repo.preload(pokemons, favs: from(f in Fav, where: f.user_id == ^user.id))
+  end
+
+  defp get_query_and_metadata(params, user) do
+    query = from p in Pokemon
+    query = case Map.has_key?(params, "q") do
+              true ->
+                %{"q" => q} = params
+                name = "%#{q}%"
+                from p in query,  where: like(p.name, ^name)
+              _ -> query
+          end
+    [limit: limit, offset: offset, only_favs: only_favs, page: page] = get_metadata(params)
+    count = case only_favs do
+      true -> Repo.preload(user, pokemons: query).pokemons |> Enum.count
+      _ -> Repo.aggregate(query, :count, :id)
+    end
+    overflow = Float.ceil(count / limit) < page
+    query = case overflow do
+              false -> from p in query, preload: [:type1, :type2], limit: ^limit, offset: ^offset
+              _ -> query 
+            end
+    %{query: query, overflow: overflow, only_favs: only_favs}
+  end
+
+  defp get_metadata(params) do
+    only_favs = Map.has_key?(params, "f")
+    %{limit: limit, offset: offset, page: page} = Pokemon.paginate(params)
+    [limit: limit, offset: offset, only_favs: only_favs, page: page]
   end
   
   defp put_resp_authorization(conn, user) do
