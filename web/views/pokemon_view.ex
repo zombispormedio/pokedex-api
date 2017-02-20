@@ -19,9 +19,9 @@ defmodule PokedexApi.PokemonView do
       description: pokemon.description,
       type1: TypeView.render("type.json", %{type: type1}),
       type2: TypeView.render("type.json", %{type: type2}),
-      evolution: pokemon.evolution,
+      evolution: pokemon.evolution || "",
       fav: Enum.count(pokemon.favs) == 1,
-      sprite: pokemon.sprite, 
+      sprite: pokemon.sprite || "", 
       insertedAt: pokemon.inserted_at
     }
   end
