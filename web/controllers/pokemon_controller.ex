@@ -121,7 +121,7 @@ defmodule PokedexApi.PokemonController do
     end
     overflow = Float.ceil(count / limit) < page
     query = case overflow do
-              false -> from p in query, preload: [:type1, :type2], limit: ^limit, offset: ^offset, order_by: p.inserted_at
+              false -> from p in query, preload: [:type1, :type2], limit: ^limit, offset: ^offset, order_by: [desc: p.inserted_at]
               _ -> query 
             end
     %{query: query, overflow: overflow, only_favs: only_favs}
