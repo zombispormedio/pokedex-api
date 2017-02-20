@@ -59,6 +59,7 @@ defmodule PokedexApi.Pokemon do
   defp add_sprite(changeset, struct) do
      name = get_field(changeset, :name)
     cond do
+      name == nil -> changeset
       struct.name != name or struct.sprite == nil  -> 
         sprite = PokeApi.sprite(name)
         change(changeset, %{sprite: sprite})
