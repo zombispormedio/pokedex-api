@@ -77,7 +77,7 @@ Repo.insert(%Pokemon{
     name: "Tympole",
     description: "Tympole está basado en un renacuajo: su cabeza es redonda, tiene ojos ovalados y sus cejas tienen forma de renacuajo, sus oídos parecen tapones, su cola es muy parecida a la de Poliwag y le gusta vivir en aguas lodosas. Curiosamente cuando se encuentran al aire libre cantan y saltan como en coreografía, tal vez porque saben movimientos como canon, eco voz y vozarrón.",
 evolution: "Palpitoad",
-sprite: PokeApi.sprite("Palpitoad"),
+sprite: PokeApi.sprite("Tympole"),
 type1_id: 18
 })
 
