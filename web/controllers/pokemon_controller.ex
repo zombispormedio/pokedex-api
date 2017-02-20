@@ -58,7 +58,7 @@ defmodule PokedexApi.PokemonController do
     cond do
       pokemon != nil -> 
         Repo.delete!(pokemon)
-        send_resp(conn, :no_content, "")
+        render(conn, "custom.json", data: %{message: "Hecho ;)"})
       true ->
         render(conn, "not_found.json", params: %{id: id})
     end
