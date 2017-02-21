@@ -34,7 +34,7 @@ defmodule PokedexApi.Pokemon do
   """
   def changeset(struct, params \\ %{}) do
     types = get_types()
-    params = (parse_types(params) |> empty_sprite)
+    params = (parse_types(params) |> empty_sprite(struct))
     struct
     |> cast(params, [:name, :description, :evolution, :type1_id, :type2_id, :sprite])
     |> validate_required([:name, :description, :type1_id])
@@ -68,8 +68,9 @@ defmodule PokedexApi.Pokemon do
 
   defp get_sprite(changeset, struct) do
     name = get_field(changeset, :name)
+    IO.inspect struct
     cond do
-      struct.name != name or struct.sprite == nil -> 
+      (struct.name != name && name != "") or struct.sprite == nil -> 
         sprite = PokeApi.sprite(name)
         change(changeset, %{sprite: sprite})
       true -> changeset
@@ -93,8 +94,11 @@ defmodule PokedexApi.Pokemon do
     end
   end
 
-  defp empty_sprite(params) do
-    Map.put(params, "sprite", "")
+  defp empty_sprite(params, struct) do
+    cond do
+      struct.sprite == nil ->  Map.put(params, "sprite", "")
+      true -> params
+    end
   end
 
   defp has_all_types(params) do
