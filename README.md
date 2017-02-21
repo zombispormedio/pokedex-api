@@ -22,6 +22,19 @@ For production , it's needed to set up environment variables:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser. To run tests: `mix test`
 
+Try http://pokedex-watch.herokuapp.com/
+
+#### Endpoints List           
+`GET     /api/types `: Get list of Pokemon types.
+`GET     /api/pokemons?p=&q=&f=`: Get list of Pokemons (data is paginated),  `p` is the page, `q` is search by name param and due to the presence of `f`, only favourites pokemons are listed.
+`GET     /api/pokemons/:id`: Get one Pokemon by ID.   
+`POST    /api/pokemons`: create Pokemon.     
+`PUT     /api/pokemons/:id`: update Pokemon.
+`DELETE  /api/pokemons/:id `: delete Pokemon.
+`PATCH   /api/fav/:id `: do or undo favourite.            
+           
+
+
 
 
 
