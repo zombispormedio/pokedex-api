@@ -2,7 +2,6 @@ defmodule PokedexApi.PokemonController do
   use PokedexApi.Web, :controller
 
   alias PokedexApi.Pokemon
-  alias PokedexApi.Type
   alias PokedexApi.Fav
   alias PokedexApi.Authenticator
 
@@ -14,10 +13,10 @@ defmodule PokedexApi.PokemonController do
     |> render("index.json", pokemons: pokemons)
   end
 
-  def create(conn, %{"pokemon" => pokemon_params}) do
+  def create(conn, params) do
     user = Authenticator.resolve(conn)
     pokemon = load_types(%Pokemon{})
-    changeset = build_change(pokemon, pokemon_params)
+    changeset = Pokemon.changeset(pokemon, params["pokemon"] || %{})
     case Repo.insert(changeset) do
       {:ok, pokemon} ->
         conn
@@ -42,7 +41,7 @@ defmodule PokedexApi.PokemonController do
   end
 
   defp process_update(conn, pokemon, params) do
-    changeset = build_change(load_types(pokemon), params)
+    changeset = Pokemon.changeset(load_types(pokemon), params)
     
     case Repo.update(changeset) do
       {:ok, pokemon} -> show(conn, %{"id" => pokemon.id})
@@ -76,16 +75,13 @@ defmodule PokedexApi.PokemonController do
     pokemon = Repo.one( from u in Pokemon, where: u.id == ^id)
     cond do
       pokemon !=nil -> &(callback.(&1, pokemon))
-      true -> &(render(&1, "not_found.json", params: %{id: id}))
+      true -> 
+        fn conn ->
+           conn
+            |> put_status(:not_found)
+            |> render( "not_found.json", params: %{id: id}) 
+        end
     end
-  end
-  
-  defp types() do
-    Enum.map(Repo.all(Type), fn item -> item.id end)
-  end
-  
-  defp build_change(pokemon, params) do
-    Pokemon.changeset(pokemon, params, types())
   end
   
   def paginate_pokemons(params, user) do

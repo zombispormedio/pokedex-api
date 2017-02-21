@@ -4,6 +4,7 @@ defmodule PokedexApi.Pokemon do
   alias PokedexApi.Type
   alias PokedexApi.Fav
   alias PokedexApi.PokeApi
+  alias PokedexApi.Repo
 
   schema "pokemons" do
     field :name, :string
@@ -31,7 +32,8 @@ defmodule PokedexApi.Pokemon do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  def changeset(struct, params \\ %{}, types) do
+  def changeset(struct, params \\ %{}) do
+    types = get_types()
     params = (parse_types(params) |> empty_sprite)
     struct
     |> cast(params, [:name, :description, :evolution, :type1_id, :type2_id, :sprite])
@@ -57,9 +59,17 @@ defmodule PokedexApi.Pokemon do
   end
 
   defp add_sprite(changeset, struct) do
-     name = get_field(changeset, :name)
+     cond do
+        Enum.count(changeset.errors) ==0 -> 
+          get_sprite(changeset, struct)
+        true -> changeset
+     end
+  end
+
+  defp get_sprite(changeset, struct) do
+    name = get_field(changeset, :name)
     cond do
-      struct.name != name or struct.sprite == nil  -> 
+      struct.name != name or struct.sprite == nil -> 
         sprite = PokeApi.sprite(name)
         change(changeset, %{sprite: sprite})
       true -> changeset
@@ -93,4 +103,9 @@ defmodule PokedexApi.Pokemon do
   defp has_one_type(params) do
     Map.has_key?(params, "type1")
   end
+
+   defp get_types() do
+    Enum.map(Repo.all(Type), fn item -> item.id end)
+  end
+  
 end
