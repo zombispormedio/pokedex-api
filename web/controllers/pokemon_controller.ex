@@ -134,6 +134,6 @@ defmodule PokedexApi.PokemonController do
   end
   
   defp put_resp_authorization(conn, user) do
-    put_resp_header(conn, "Authorization", user.token)
+    put_resp_header(conn, "authorization", user.token)
   end
 end
