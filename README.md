@@ -26,6 +26,7 @@ Try http://pokedex-watch.herokuapp.com/
 
 #### Endpoints List           
 `GET     /api/types `: Get list of Pokemon types.
+
 `GET     /api/pokemons?p=&q=&f=`: Get list of Pokemons (data is paginated),  `p` is the page, `q` is search by name param and due to the presence of `f`, only favourites pokemons are listed.
 
 `GET     /api/pokemons/:id`: Get one Pokemon by ID.   

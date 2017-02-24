@@ -85,48 +85,65 @@ defmodule PokedexApi.PokemonController do
   end
   
   def paginate_pokemons(params, user) do
-    result= get_query_and_metadata(params, user)
-    case result.overflow do
+    builder = build_query(params, user)
+    case builder.overflow do
        true -> []
-      _ -> get_pokemons(result, user)
+      _ -> get_pokemons(builder, user)
     end
   end
   
-  defp get_pokemons(result, user) do
-    query = result.query
-    pokemons = case result.only_favs do
+  defp get_pokemons(builder, user) do
+    query = builder.query
+    pokemons = case builder.only_favs do
                   true -> Repo.preload(user, pokemons: query).pokemons
                   _ -> Repo.all(query)
               end
     Repo.preload(pokemons, favs: from(f in Fav, where: f.user_id == ^user.id))
   end
 
-  defp get_query_and_metadata(params, user) do
-    query = from p in Pokemon
-    query = case Map.has_key?(params, "q") do
-              true ->
-                %{"q" => q} = params
-                name = "%#{q}%"
-                from p in query,  where: like(p.name, ^name)
-              _ -> query
-          end
-    [limit: limit, offset: offset, only_favs: only_favs, page: page] = get_metadata(params)
-    count = case only_favs do
-      true -> Repo.preload(user, pokemons: query).pokemons |> Enum.count
-      _ -> Repo.aggregate(query, :count, :id)
-    end
-    overflow = Float.ceil(count / limit) < page
-    query = case overflow do
-              false -> from p in query, preload: [:type1, :type2], limit: ^limit, offset: ^offset, order_by: [desc: p.inserted_at]
-              _ -> query 
-            end
-    %{query: query, overflow: overflow, only_favs: only_favs}
+  defp build_query(params, user) do
+    from(p in Pokemon)
+    |> create_builder(params)
+    |> resolve_search(params)
+    |> resolve_overflow(user)
+    |> build_query
   end
 
-  defp get_metadata(params) do
-    only_favs = Map.has_key?(params, "f")
-    %{limit: limit, offset: offset, page: page} = Pokemon.paginate(params)
-    [limit: limit, offset: offset, only_favs: only_favs, page: page]
+  defp create_builder(query, params) do
+    Pokemon.paginate(params)
+    |> Map.put(:query, query)
+    |> Map.put(:only_favs, Map.has_key?(params, "f"))
+    |> Map.put(:search, Map.has_key?(params, "q"))
+  end
+
+  defp resolve_search(builder, params) do
+    case builder.search do
+      true ->
+        %{"q" => q} = params
+        name = "%#{q}%"
+        new_query = from(p in builder.query,  where: like(p.name, ^name))
+        %{builder | query: new_query}
+        _ -> builder
+    end
+  end
+
+  defp resolve_overflow(b, user) do
+    count = case b.only_favs do
+      true -> Repo.preload(user, pokemons: b.query).pokemons |> Enum.count
+      _ -> Repo.aggregate(b.query, :count, :id)
+    end
+    overflow = Float.ceil(count / b.limit) < b.page
+    Map.put(b, :overflow, overflow)
+  end
+
+  defp build_query(b) do
+    case b.overflow do
+      false -> 
+        query = from p in b.query, preload: [:type1, :type2], 
+        limit: ^b.limit, offset: ^b.offset, order_by: [desc: p.inserted_at]
+        %{b| query: query}
+      _ -> b
+    end
   end
   
   defp put_resp_authorization(conn, user) do
