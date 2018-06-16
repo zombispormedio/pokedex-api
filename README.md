@@ -1,5 +1,7 @@
 # PokedexApi
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Zombispormedio/pokedex_api.svg)](https://greenkeeper.io/)
+
 API RESTFul created with Elixir, Phoenix framework and PostgreSQL
 
 To start Pokedex API:
