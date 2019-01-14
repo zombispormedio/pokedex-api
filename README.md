@@ -1,6 +1,6 @@
 # PokedexApi
 
-API RESTFul created with Elixir, Phoenix framework and PostgreSQL
+First time with Elixir, Phoenix framework and PostgreSQL
 
 To start Pokedex API:
 
